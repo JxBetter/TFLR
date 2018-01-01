@@ -1,0 +1,39 @@
+import numpy
+import tensorflow as tf
+from matplotlib import pyplot
+
+numpy.random.seed(22)
+X = numpy.r_[numpy.random.randn(50, 2) - [1.5, 1.5], numpy.random.randn(50, 2) + [1.5, 1.5]]
+Y=numpy.array([[0]*50+[1]*50])
+X=X.T
+
+W=tf.Variable([[0,0]],dtype=tf.float64)
+b=tf.Variable([[0]],dtype=tf.float64)
+Z=tf.matmul(W,X)+b
+A=1/(1+tf.exp(-Z))
+
+loss=tf.reduce_mean(-(Y*tf.log(A)+(1-Y)*tf.log(1-A)))
+optimizer=tf.train.RMSPropOptimizer(0.8)
+train=optimizer.minimize(loss)
+init=tf.global_variables_initializer()
+
+sess=tf.Session()
+sess.run(init)
+for i in range(0,100):
+    sess.run(train)
+    result_W=sess.run(W)
+    result_b=sess.run(b)
+    result_loss=sess.run(loss)
+print(result_W[0])
+print('loss is --------\n',result_loss)
+
+
+a=numpy.linspace(-10,10)
+kk=-(result_W[0][0]/result_W[0][1])
+bb=result_b[0][0]/result_W[0][1]
+yy=kk*a-bb
+
+pyplot.scatter(X[0][0:50],X[1][0:50],c='r')
+pyplot.scatter(X[0][50:100],X[1][50:100],c='y')
+pyplot.plot(a,yy,'b')
+pyplot.show()
